@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda - Quiz Interaktif</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="mode-toggle" onclick="toggleMode()">🌙</button>
+
+  <div class="container">
+    <div class="card" style="text-align:center;">
+      <h2>Halo, <span id="namaUser"></span> 👋</h2>
+      <p>Selamat datang di Beranda Quiz Interaktif</p>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <h3>Mau ngapain hari ini?</h3>
+      <button class="btn btn-primary" onclick="location.href='buat-kuis.html'">📑 Buat Kuis</button>
+      <button class="btn btn-success" onclick="location.href='ikuti-kuis.html'">📝 Ikuti Kuis</button>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <button class="btn btn-danger" onclick="gantiNama()">Ganti Nama / Preferensi</button>
+    </div>
+  </div>
+
+  <script>
+    // Apply nama
+    document.getElementById("namaUser").innerText = localStorage.getItem("nama") || "Pengguna";
+
+    // Apply warna custom
+    const savedColor = localStorage.getItem("themeColor");
+    if (savedColor) {
+      document.documentElement.style.setProperty("--theme-color", savedColor);
+    }
+
+    // Apply device mode
+    const device = localStorage.getItem("device");
+    if (device) {
+      document.body.classList.add(device + "-mode");
+    }
+
+    // Apply dark mode kalau sebelumnya dipilih
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+    }
+
+    function gantiNama() {
+      // clear data
+      localStorage.removeItem("nama");
+      localStorage.removeItem("device");
+      localStorage.removeItem("themeColor");
+      // balik ke login
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

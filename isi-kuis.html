@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ikuti Kuis - Quiz Interaktif</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <button class="mode-toggle" onclick="toggleMode()">🌙</button>
+
+  <div class="container">
+    <div class="card" id="inputKodeCard">
+      <h2>Masukkan Kode Kuis</h2>
+      <input type="text" id="kodeInput" placeholder="Contoh: ABC123">
+      <button class="btn btn-primary" onclick="mulaiKuis()">Mulai</button>
+    </div>
+
+    <form id="kuisForm" style="display:none;"></form>
+
+    <div id="hasilCard" class="card" style="display:none; text-align:center;">
+      <h2>Hasil Kuis</h2>
+      <p id="totalScore"></p>
+      <canvas id="hasilChart" width="200" height="200"></canvas>
+      <button class="btn btn-success" onclick="balikBeranda()">Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // Apply tema
+    const savedColor = localStorage.getItem("themeColor");
+    if (savedColor) {
+      document.documentElement.style.setProperty("--theme-color", savedColor);
+    }
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+    }
+    const device = localStorage.getItem("device");
+    if (device) document.body.classList.add(device + "-mode");
+
+    function toggleMode() {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.className = "toast show";
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+    }
+
+    function mulaiKuis() {
+      const kode = document.getElementById("kodeInput").value.trim().toUpperCase();
+      const data = localStorage.getItem("kuis_" + kode);
+
+      if (!data) {
+        showToast("Kode kuis tidak ditemukan!");
+        return;
+      }
+
+      const soalList = JSON.parse(data);
+      const form = document.getElementById("kuisForm");
+      form.innerHTML = "";
+      soalList.forEach((s, i) => {
+        form.innerHTML += `
+          <div class="card">
+            <h3>Soal ${i+1}</h3>
+            <p>${s.pertanyaan}</p>
+            ${
+              s.tipe === "isian" 
+              ? `<input type="text" name="soal${i}" placeholder="Jawaban kamu">`
+              : `<input type="text" name="soal${i}" placeholder="Jawaban kamu (PG)">`
+            }
+          </div>
+        `;
+      });
+      form.innerHTML += `<button type="button" class="btn btn-primary" onclick="submitKuis('${kode}')">Kumpulkan</button>`;
+
+      document.getElementById("inputKodeCard").style.display = "none";
+      form.style.display = "block";
+    }
+
+    function submitKuis(kode) {
+      const soalList = JSON.parse(localStorage.getItem("kuis_" + kode));
+      const form = document.getElementById("kuisForm");
+      let benar = 0;
+
+      soalList.forEach((s, i) => {
+        const jawaban = form.querySelector(`[name=soal${i}]`).value.trim().toLowerCase();
+        if (jawaban === s.kunci.trim().toLowerCase()) {
+          benar++;
+        }
+      });
+
+      const salah = soalList.length - benar;
+
+      document.getElementById("totalScore").innerText = `Skor: ${benar}/${soalList.length}`;
+      document.getElementById("hasilCard").style.display = "block";
+      form.style.display = "none";
+
+      new Chart(document.getElementById("hasilChart"), {
+        type: 'pie',
+        data: {
+          labels: ['Benar', 'Salah'],
+          datasets: [{
+            data: [benar, salah],
+            backgroundColor: ['#28a745', '#dc3545']
+          }]
+        }
+      });
+    }
+
+    function balikBeranda() {
+      window.location.href = "beranda.html";
+    }
+  </script>
+</body>
+</html>

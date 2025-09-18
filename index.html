@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Quiz Interaktif</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container center">
+    <div class="card" style="max-width:400px; width:100%;">
+      <h2 style="text-align:center; margin-bottom:15px;">Login ke Quiz</h2>
+
+      <!-- Input nama -->
+      <label for="nama">Nama:</label>
+      <input type="text" id="nama" placeholder="Masukkan nama kamu">
+
+      <!-- Pilih device -->
+      <label for="device">Pilih Perangkat:</label>
+      <select id="device">
+        <option value="hp">HP</option>
+        <option value="laptop" selected>Laptop</option>
+        <option value="monitor">Monitor</option>
+      </select>
+
+      <!-- Pilih warna -->
+      <label for="themeColor">Pilih Warna Tema:</label>
+      <input type="color" id="themeColor" value="#007bff">
+
+      <!-- Tombol login -->
+      <button class="btn btn-primary" style="width:100%;" onclick="login()">Masuk</button>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.className = "toast show";
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+    }
+
+    function login() {
+      const nama = document.getElementById("nama").value.trim();
+      const device = document.getElementById("device").value;
+      const themeColor = document.getElementById("themeColor").value;
+
+      if (!nama) {
+        showToast("Masukkan nama dulu ya!");
+        return;
+      }
+
+      // Simpan ke localStorage
+      localStorage.setItem("nama", nama);
+      localStorage.setItem("device", device);
+      localStorage.setItem("themeColor", themeColor);
+
+      // Pindah ke beranda
+      window.location.href = "beranda.html";
+    }
+  </script>
+</body>
+</html>
