@@ -14,7 +14,6 @@
       <h2>Buat Kuis Baru</h2>
       <label for="jumlahSoal">Jumlah Soal:</label>
       <input type="number" id="jumlahSoal" min="1" placeholder="Masukkan jumlah soal">
-
       <button class="btn btn-primary" onclick="buatForm()">Buat Form Soal</button>
     </div>
 
@@ -30,14 +29,10 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // Apply tema
+    // Theme
     const savedColor = localStorage.getItem("themeColor");
-    if (savedColor) {
-      document.documentElement.style.setProperty("--theme-color", savedColor);
-    }
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add("dark");
-    }
+    if (savedColor) document.documentElement.style.setProperty("--theme-color", savedColor);
+    if (localStorage.getItem("darkMode") === "true") document.body.classList.add("dark");
     const device = localStorage.getItem("device");
     if (device) document.body.classList.add(device + "-mode");
 
@@ -65,31 +60,56 @@
 
       for (let i = 1; i <= jumlah; i++) {
         form.innerHTML += `
-          <div class="card">
+          <div class="card soalCard">
             <h3>Soal ${i}</h3>
-            <textarea placeholder="Tulis pertanyaan..." required></textarea>
-            <select class="tipe">
+            <textarea placeholder="Tulis pertanyaan..." class="pertanyaan" required></textarea>
+            <label>Tipe Soal:</label>
+            <select class="tipe" onchange="ubahTipe(this)">
               <option value="pg">Pilihan Ganda</option>
               <option value="isian">Isian</option>
             </select>
-            <div class="opsi"></div>
+            <div class="opsiBox">
+              <label>Pilihan A:</label>
+              <input type="text" class="opsi" placeholder="Opsi A">
+              <label>Pilihan B:</label>
+              <input type="text" class="opsi" placeholder="Opsi B">
+              <label>Pilihan C:</label>
+              <input type="text" class="opsi" placeholder="Opsi C">
+              <label>Pilihan D:</label>
+              <input type="text" class="opsi" placeholder="Opsi D">
+            </div>
             <label>Kunci Jawaban:</label>
-            <input type="text" class="kunci" placeholder="Masukkan kunci jawaban">
+            <input type="text" class="kunci" placeholder="Contoh: A / teks jawaban">
           </div>
         `;
       }
       form.innerHTML += `<button type="button" class="btn btn-primary" onclick="simpanKuis(${jumlah})">Selesai & Simpan</button>`;
     }
 
+    function ubahTipe(select) {
+      const card = select.closest(".soalCard");
+      const opsiBox = card.querySelector(".opsiBox");
+      if (select.value === "isian") {
+        opsiBox.style.display = "none";
+      } else {
+        opsiBox.style.display = "block";
+      }
+    }
+
     function simpanKuis(jumlah) {
       const soalList = [];
-      const cards = document.querySelectorAll("#formSoal .card");
+      const cards = document.querySelectorAll("#formSoal .soalCard");
       cards.forEach(card => {
-        const pertanyaan = card.querySelector("textarea").value;
+        const pertanyaan = card.querySelector(".pertanyaan").value;
         const tipe = card.querySelector(".tipe").value;
         const kunci = card.querySelector(".kunci").value;
+        const opsi = [];
 
-        soalList.push({ pertanyaan, tipe, kunci });
+        if (tipe === "pg") {
+          card.querySelectorAll(".opsi").forEach(o => opsi.push(o.value));
+        }
+
+        soalList.push({ pertanyaan, tipe, kunci, opsi });
       });
 
       const kode = Math.random().toString(36).substring(2, 8).toUpperCase();

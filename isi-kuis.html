@@ -30,14 +30,10 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // Apply tema
+    // Theme
     const savedColor = localStorage.getItem("themeColor");
-    if (savedColor) {
-      document.documentElement.style.setProperty("--theme-color", savedColor);
-    }
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add("dark");
-    }
+    if (savedColor) document.documentElement.style.setProperty("--theme-color", savedColor);
+    if (localStorage.getItem("darkMode") === "true") document.body.classList.add("dark");
     const device = localStorage.getItem("device");
     if (device) document.body.classList.add(device + "-mode");
 
@@ -66,15 +62,27 @@
       const form = document.getElementById("kuisForm");
       form.innerHTML = "";
       soalList.forEach((s, i) => {
+        let inputHTML = "";
+
+        if (s.tipe === "isian") {
+          inputHTML = `<input type="text" name="soal${i}" placeholder="Jawaban kamu">`;
+        } else {
+          inputHTML = s.opsi.map((opt, idx) => {
+            const abjad = ["A","B","C","D"][idx];
+            return `
+              <label>
+                <input type="radio" name="soal${i}" value="${abjad}">
+                ${abjad}. ${opt}
+              </label><br>
+            `;
+          }).join("");
+        }
+
         form.innerHTML += `
           <div class="card">
             <h3>Soal ${i+1}</h3>
             <p>${s.pertanyaan}</p>
-            ${
-              s.tipe === "isian" 
-              ? `<input type="text" name="soal${i}" placeholder="Jawaban kamu">`
-              : `<input type="text" name="soal${i}" placeholder="Jawaban kamu (PG)">`
-            }
+            ${inputHTML}
           </div>
         `;
       });
@@ -90,7 +98,13 @@
       let benar = 0;
 
       soalList.forEach((s, i) => {
-        const jawaban = form.querySelector(`[name=soal${i}]`).value.trim().toLowerCase();
+        let jawaban = "";
+        if (s.tipe === "isian") {
+          jawaban = form.querySelector(`[name=soal${i}]`).value.trim().toLowerCase();
+        } else {
+          const pilih = form.querySelector(`[name=soal${i}]:checked`);
+          jawaban = pilih ? pilih.value.toLowerCase() : "";
+        }
         if (jawaban === s.kunci.trim().toLowerCase()) {
           benar++;
         }
